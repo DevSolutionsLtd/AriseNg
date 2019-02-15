@@ -1,0 +1,87 @@
+---
+title: "Arise Nigeria, 22-23 January 2019"
+author: "DevSolutions Ltd"
+date: "4 February 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+Nehemiah Apostolic Resource Centre (NARC) hosted a 2-Day conference tagged *Arise Nigeria* from 22-23 January 2019 at M & M Events Centre, Area 11 Garki, Abuja. DevSolutions was called upon to handle on-site conference registrations.
+
+# Activity
+## Pre-conference
+NARC had already started pre-conference registration via an online service [Eventbrite](https://www.eventbrite.com) before our company was brought on board.
+
+A training session organised for registrants held in the premised of NARC in the evening of Monday 21 January, 2019. During the session, a customized electronic data entry format was introduced with practical demonstration on its usage. Out of 9 persons pencilled down as registrants, 6 attended the training session. Other relevant staff of the Centre were present.
+
+Also visits were made to the conference venue to ensure that adequate arrangements were put in place for the team's assignment.
+
+## Conference
+We concluded the conference yesterday on a very high spirit. Myself and the team of registrants implemented the task as planed with major changes as you were briefed. Key among others is the emergency decision to deploy MS-Excel for the data collection since we could not execute the installation of ‘R’ in the supplied laptops.
+
+A total of 11 registrants were part of the team - 7 on the Day-1 and 11 on Day 2 their details are in the attached table. 
+
+All materials to “Sam” about 10:00pm on Wednesday 23 January. These included:
+
+A bag with “registration Slips” that were not entered [How many?]were handed over to Sammy, one of the NARC's IT staff. We agreed he would ensure they are entered into the template and made available as soon as feasible. Meanwhile, he was to ensure the incineration of used/recorded slips to avoid the exposure of private data.
+
+We were able to capture about 556 persons on Day 1 (i.e. those who did not register online) and 439 persons on Day 2.
+
+# Exploratory Analysis
+```{r dependencies, message=FALSE}
+library(RSQLite)
+library(tidyverse)
+library(here)
+library(magrittr)
+
+source(file.path(here(), 'data', 'helpers.R'))
+```
+
+```{r load data}
+cnx <- dbConnect(SQLite(), dataDirPath('arise_nigeria.db'))
+df <- dbReadTable(cnx, 'all_registrations')
+dbDisconnect(cnx)
+```
+
+```{r define var_plot}
+# var_plot <- function(var)
+# {
+#   require(rlang)
+#   var <- enexpr(var)
+#   ggplot(data = subset(df, !is.na(!!var))) + aes(!!var)
+# }
+```
+
+```{r plot gender}
+ggplot(data = subset(df, !is.na(gender)), aes(gender)) +
+  geom_bar() +
+  ggtitle('Gender of participants')
+```
+
+```{r plot location}
+df %>%
+  subset(!is.na(location) & location != 'ABUJA') %>% 
+  ggplot(aes(fct_infreq(location))) +
+  geom_bar() +
+  coord_flip() +
+  ggtitle('Participants coming from outside Abuja') +
+  theme(axis.text.y = element_text(size = 5))
+```
+
+
+```{r plot occupation}
+ggplot(data = subset(df, !is.na(occupation)), aes(fct_infreq(occupation))) +
+  geom_bar() +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5))
+```
+
+# Challenges
+Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
+
+Inadequate staff: As stated, fewer registrants worked on the first day of the 
+# Way forward
