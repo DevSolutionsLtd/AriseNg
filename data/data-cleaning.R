@@ -110,10 +110,10 @@ readData %<>% mutate(title = str_to_title(title))
 readData$occupation %<>%
   str_to_upper %>%
   str_replace('ACCOUNTING', 'ACCOUNTANT') %>% 
+  str_replace("ASSITANT", "ASSISTANT") %>% 
   str_replace("ALL SAINTS KADO FISH MARKET", NA_character_) %>% 
-  str_replace('^BUSINE.*$', 'BUSINESS') %>% 
+  str_replace('^BUSINE.*|ENTREPRENEUR$', 'BUSINESS') %>% 
   str_replace('C\\.S|^CEV.+$', 'CIVIL SERVANT') %>% 
-  str_replace('^CLERGE$', 'CLERGY') %>% 
   str_replace('CHURCH', NA_character_) %>% 
   str_replace('COPER', 'NYSC MEMBER') %>% 
   str_replace('^DRIV.+$', 'DRIVER') %>% 
@@ -126,14 +126,16 @@ readData$occupation %<>%
   str_replace('HANDWORK\\/A\\.C', 'A/C TECHNICIAN') %>% 
   str_replace('^HOUSE.+', 'HOUSEWIFE') %>% 
   str_replace('LAGAL', 'LEGAL') %>% 
+  str_replace("^MEDIA.+", "MEDIA") %>% 
+  str_replace("(PARA).?MILITARY", "MILITARY") %>% 
   str_replace('^MINISTER.+$', 'MINISTER') %>% 
-  str_replace('^(MUCIC|MUSIC).*', 'MUSIC') %>% 
+  str_replace('^(MUCIC|MUSIC|PIANIST).*', 'MUSICIAN') %>% 
   str_replace('NIL|NULL', NA_character_) %>% 
   str_replace('ASSISTANCE$', 'ASSITANT') %>% 
   str_replace('PASTORIAL', 'PASTOR') %>% 
   str_replace('^.*(RITIRE|RETIRE|RTD).*$', 'RETIRED') %>%
   str_replace('SURVEY$', 'SURVEYOR') %>% 
-  str_replace('SUDENT', 'STUDENT') %>% 
+  str_replace('^SUDENT$|^STUDEN$', 'STUDENT') %>% 
   str_replace('^TAILOR.+', 'TAILOR') %>% 
   str_replace('^TEA.+', 'TEACHER') %>% 
   str_replace('^TRAD.+', 'TRADER') %>% 
@@ -142,7 +144,43 @@ readData$occupation %<>%
   str_replace('PRACTIONER', 'PRACTITIONER') %>% 
   str_replace('PASTORING', 'PASTOR') %>% 
   str_replace('PROPHETE(S)', '\\1SS') %>% 
-  str_replace('(SELF)(\\s)', '\\1-')
+  str_replace('(SELF)(\\s)', '\\1-') %>% 
+  str_replace(
+    regex(
+      paste0(
+        "^A\\/C.+$|",
+        ".+ELECTRICIAN$|",
+        "BRICKLAYER|",
+        "CLEANER|",
+        "DRIVER|",
+        "^FASHION.+|",
+        "FURNITURE|",
+        "HAIR DRESSER|",
+        "LAUNDRY|",
+        "MASON|",
+        "^MECHANIC.+$|",
+        "P\\.O\\.P.+$|",
+        "PLUMBER|",
+        "WELDER|",
+        "STYLIST|",
+        "TAILOR|",
+        "TECHNICIAN"
+      )
+    ),
+    "ARTISAN"
+    ) %>% 
+  str_replace("METRON", "NURSE") %>% 
+  str_replace("ATTORNEY", "LEGAL PRACTITIONER") %>% 
+  str_replace(".+BANKER|CASHIER", "BANKER") %>% 
+  str_replace('^CLERGE$|PASTOR|EVANGELIST|^PREACHER.+|MINISTER|MISSIONARY|^SERVANT.+$', 'CLERGY') %>% 
+  str_replace("PROGRAMMER|ANIMATOR|^GRAPHIC.+", "IT PROFESSIONAL") %>% 
+  str_replace(
+    regex("^ANALYST|AVIATOR|^BIKING.+|^BRAND.+|.*CONSULTANT.*|^DEVT.+$|^GDS.+$|^INDUSTRIAL.+$|.+MANAGER|MAID|^OFFICE.+|SOCIAL|^SSS$|TRAINER|^WRITER.+"),
+    "MISCELLANEOUS"
+    ) %>% 
+  str_replace("^(CIVIL|PUBLIC)\\sSERVANT$", "CIVIL/PUBLIC SERVANT") %>% 
+  str_replace("SELF-EMPLOYED|TRADER", "BUSINESS") %>% 
+  str_replace("BUSINESS", "ENTREPRENEUR")
 
 odd.occup.entries <- 
   c(
@@ -157,6 +195,7 @@ odd.occup.entries <-
     "ECWA",
     "F",
     "FIRM FOUNDATION ABA",
+    "FOOD DOCTOR",
     "GREAT DYNAMITE FLAME FIRE ASSEMBLY KUJE",
     "GREAT JESUS CHAPEL KUJE",
     "HARVEST HOUSE INTERNATIONAL MISSIONS KURUDU ABUJA",
@@ -193,28 +232,58 @@ readData$location %<>%
   str_replace('AKWAN?GA.*', 'AKWANGA') %>%
   str_replace('ANAM?BRA.*$', 'ANAMBRA STATE') %>%
   str_replace('^(DIKO).*', '\\1') %>% 
-  str_replace('^DIKKIO.+', 'DIKO') %>% 
   str_replace('^(JOS).*', '\\1') %>% 
   str_replace('^KAF.*$', 'KAFANCHAN') %>% 
   str_replace('^(KEFFI).*', '\\1') %>%
-  str_replace('^(LAFIA)(\\,).*', '\\1') %>% 
+  str_replace('^(LAFIA).*', '\\1') %>% 
   str_replace('^(MADALA).*', '\\1') %>% 
   str_replace(
     regex(
-      'ASOKORO|BWARI|BUARI|CARIMO|DIE DIE|DUTSE|FCT|^GWAGWA$|^GWARINPA$|IDU.*|JABI|JIK.+|^KAR.*|^KORUDO$|KUBWA|LIFE.+|LUGBE|^N?YANYAN?$|OROZO|USHAFA.*|WUSE.*'
+      paste0(
+        "ASOKORO",
+        "|BWARI",
+        "|BUARI",
+        "|CARIMO",
+        "|DIE DIE",
+        "|DUTSE",
+        "|FCT",
+        "|^GWAGWA$",
+        "|^GWARINPA$",
+        "|IDU.*",
+        "|JABI",
+        "|JIK.+",
+        "|^KAR.*",
+        "|^KORUDO$",
+        "|KUBWA",
+        "|LIFE.+",
+        "|LUGBE",
+        "|^N?YANYAN?$",
+        "|OROZO",
+        "|USHAFA.*",
+        "|WUSE.*"
+      )
     ),
     'ABUJA'
   ) %>%
   str_to_upper('Nsukka') %>%
-  str_replace(regex("OVERCOMER WORD ASSEMBLE|DIVINENATURECHRISTIANCENTER22"),
+  str_replace(regex("OVERCOMER WORD ASSEMBLE|DIVINENATURECHRISTIANCENTER22|NCCHQ"),
               NA_character_) %>%
   str_replace('^PH.{5}|PORT.+', 'PORT HARCOURT') %>%
   str_replace('^(SABON-WUSE)(.*)', 'NEW WUSE') %>% 
   str_replace('^TAFA.*', 'TAFA') %>% 
-  str_replace('ZARIA.*', 'ZARIA')
+  str_replace('ZARIA.*', 'ZARIA') %>% 
+  str_replace("^(MINNA).*", "\\1") %>% 
+  str_replace("^(MARARABA).+", "\\1") %>% 
+  str_replace("^(BENIN).*", "\\1") %>% 
+  str_replace("^(LAFIA).*", "\\1") %>% 
+  str_replace('^DIKKIO.+', 'DIKO') %>% 
+  str_replace('(.+)(UKE)$', '\\2') %>% 
+  str_replace(fixed("GWAGWA"), "ABUJA")
 
-## Export the data
-write_excel_csv(readData, path = dataDirPath('arisenigeria-registration-complete.csv'))
+## Export the data -----------------------------------------------------
+write_excel_csv(
+  readData, 
+  path = dataDirPath('arisenigeria-registration-complete.csv'))
 
 sum(!is.na(readData$phone1)) + sum(!is.na(readData$phone2))
 

@@ -1,12 +1,21 @@
 ---
 title: "Arise Nigeria, 22-23 January 2019"
 author: "DevSolutions Ltd"
-date: "4 February 2019"
-output: html_document
+date: "17 February 2019"
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+lapply(c("RSQLite",
+         "here",
+         "knitr",
+         "magrittr",
+         "tidyverse"),
+         library,
+         character.only = TRUE)
+opts_chunk$set(echo = FALSE)
 ```
 
 # Introduction
@@ -31,13 +40,8 @@ A bag with “registration Slips” that were not entered [How many?]were handed
 
 We were able to capture about 556 persons on Day 1 (i.e. those who did not register online) and 439 persons on Day 2.
 
-# Exploratory Analysis
+# Exploratory Data Analysis
 ```{r dependencies, message=FALSE}
-library(RSQLite)
-library(tidyverse)
-library(here)
-library(magrittr)
-
 source(file.path(here(), 'data', 'helpers.R'))
 ```
 
@@ -47,38 +51,52 @@ df <- dbReadTable(cnx, 'all_registrations')
 dbDisconnect(cnx)
 ```
 
-```{r define var_plot}
-# var_plot <- function(var)
-# {
-#   require(rlang)
-#   var <- enexpr(var)
-#   ggplot(data = subset(df, !is.na(!!var))) + aes(!!var)
-# }
-```
-
+## Gender of Participants
 ```{r plot gender}
 ggplot(data = subset(df, !is.na(gender)), aes(gender)) +
-  geom_bar() +
+  geom_bar(fill = "darkgreen") +
   ggtitle('Gender of participants')
 ```
 
+```{r}
+genderChiStat <- chisq.test(table(df$gender))
+```
+The gender difference of participants is `r ifelse(genderChiStat$p.value < .001, "not", "")` statistically significant.
+
+## Location of Participants
+Interestingly, the majority of participants who came from outside Abuja were from neighbouring Suleja (`r round(sum(df$location == "SULEJA", na.rm = TRUE) / length(df$location) * 100, digits = 2)`% of participants).
 ```{r plot location}
 df %>%
   subset(!is.na(location) & location != 'ABUJA') %>% 
-  ggplot(aes(fct_infreq(location))) +
-  geom_bar() +
-  coord_flip() +
+  group_by(location) %>% 
+  summarise(n = n()) %>% 
+  mutate(index = seq_len(nrow(.))) %>% 
+  ggplot(aes(index, n)) +
+  geom_label(aes(label = location, fill = location)) +
   ggtitle('Participants coming from outside Abuja') +
-  theme(axis.text.y = element_text(size = 5))
+  theme(legend.position = 'none')
 ```
 
+```{r}
+df$location %>% 
+  table(dnn = "Location") %>% 
+  sort(decreasing = TRUE) %>% 
+  head(10L) %>% 
+  kable(caption = "Top Ten Location of Participants")
+```
 
+## Occupation of Participants
+Expectedly the majority of participants were of the clergy. However, the distribution of participants indicate that a large proportion of them were students, followed by entrepreneurs, civil/public servants and artisans - in that order. 
 ```{r plot occupation}
-ggplot(data = subset(df, !is.na(occupation)), aes(fct_infreq(occupation))) +
-  geom_bar() +
+dfNoNaOccup <- subset(df, !is.na(occupation))
+ggplot(data = dfNoNaOccup, aes(fct_infreq(occupation))) +
+  geom_bar(fill = "blue") +
   coord_flip() +
+  ggtitle("Occupation of Participants") +
   theme(axis.text.y = element_text(size = 5))
 ```
+
+**In fact, the distribtion of participants' occupation is very interesting, as there were proportionally almost as many students as there were clergymen/women (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).**
 
 # Challenges
 Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
