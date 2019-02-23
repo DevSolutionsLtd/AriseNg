@@ -1,10 +1,11 @@
 ---
-title: "Arise Nigeria, 22-23 January 2019"
+title: "Report on Conference Registration for Arise Nigeria, 22-23 January 2019"
 author: "DevSolutions Ltd"
 date: "17 February 2019"
 output:
   word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,8 +14,8 @@ lapply(c("RSQLite",
          "knitr",
          "magrittr",
          "tidyverse"),
-         library,
-         character.only = TRUE)
+       library,
+       character.only = TRUE)
 opts_chunk$set(echo = FALSE)
 ```
 
@@ -29,16 +30,6 @@ A training session organised for registrants held in the premised of NARC in the
 
 Also visits were made to the conference venue to ensure that adequate arrangements were put in place for the team's assignment.
 
-## Conference
-We concluded the conference yesterday on a very high spirit. Myself and the team of registrants implemented the task as planed with major changes as you were briefed. Key among others is the emergency decision to deploy MS-Excel for the data collection since we could not execute the installation of ‘R’ in the supplied laptops.
-
-A total of 11 registrants were part of the team - 7 on the Day-1 and 11 on Day 2 their details are in the attached table. 
-
-All materials to “Sam” about 10:00pm on Wednesday 23 January. These included:
-
-A bag with “registration Slips” that were not entered [How many?]were handed over to Sammy, one of the NARC's IT staff. We agreed he would ensure they are entered into the template and made available as soon as feasible. Meanwhile, he was to ensure the incineration of used/recorded slips to avoid the exposure of private data.
-
-We were able to capture about 556 persons on Day 1 (i.e. those who did not register online) and 439 persons on Day 2.
 
 # Exploratory Data Analysis
 ```{r dependencies, message=FALSE}
@@ -74,8 +65,10 @@ df %>%
   ggplot(aes(index, n)) +
   geom_label(aes(label = location, fill = location)) +
   ggtitle('Participants coming from outside Abuja') +
+  ylab("Count") +
   theme(legend.position = 'none')
 ```
+
 
 ```{r}
 df$location %>% 
@@ -93,13 +86,38 @@ ggplot(data = dfNoNaOccup, aes(fct_infreq(occupation))) +
   geom_bar(fill = "blue") +
   coord_flip() +
   ggtitle("Occupation of Participants") +
-  theme(axis.text.y = element_text(size = 5))
+  xlab("Occupation type") +
+  theme(axis.text.y = element_text(size = 5),
+        axis.title.y = element_text(face = "bold"))
 ```
 
-**In fact, the distribtion of participants' occupation is very interesting, as there were proportionally almost as many students as there were clergymen/women (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).**
+**In fact, the distribution of participants' occupation is very interesting, as there were proportionally almost as many students as there were clergymen/women (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).**
 
 # Challenges
 Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
 
-Inadequate staff: As stated, fewer registrants worked on the first day of the 
-# Way forward
+Inadequate staff: As stated, fewer registrants worked on the first day of the event. The were differences among the registrants in terms of their effectiveness and this was found to be statistically significant.
+
+```{r}
+df %>% 
+  ggplot(aes(fct_infreq(registrant), fill = ifelse(registrant == "Eventbrite", "Highlighted", "Normal"))) +
+  geom_bar() + 
+  coord_flip() +
+  ggtitle("Performance of Registrants") +
+  xlab("Name of Registrant") +
+  theme(axis.title.y = element_text(face = "bold"),
+        legend.position = "none")
+```
+
+```{r registrants chisq, include=FALSE}
+chisq.test(table(df$registrant))$p.value
+```
+
+Statistically, the p-value of the distribution (i.e. the $\chi^2$ goodness-of-fit test) indicate that the discrepancy in the work done by registrants is unlikely to have happened by chance. This result did not change even after the exclusion of the pre-event registrations from the analysis i.e. those done via "Eventbrite" (highlighted in the chart).
+
+# Recommendations
+From the foregoing, we would like to make the following suggestions to the organizers for improved results on conference registrations for subsequent editions of *Arise Nigeria*:
+
+1. Timely provision of field equipment, especially laptops, to enable the proper setup of the registration toolkit.
+2. Proper staffing by improving selection and training.
+3. Target students in the follow-up action of this edition as well as in future conferences.
