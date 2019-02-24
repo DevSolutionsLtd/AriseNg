@@ -52,7 +52,7 @@ ggplot(data = subset(df, !is.na(gender)), aes(gender)) +
 ```{r}
 genderChiStat <- chisq.test(table(df$gender))
 ```
-The gender difference of participants is `r ifelse(genderChiStat$p.value < .001, "not", "")` statistically significant.
+The gender difference of participants is `r ifelse(genderChiStat$p.value < .001, "", "not")` statistically significant.
 
 ## Location of Participants
 Interestingly, the majority of participants who came from outside Abuja were from neighbouring Suleja (`r round(sum(df$location == "SULEJA", na.rm = TRUE) / length(df$location) * 100, digits = 2)`% of participants).
@@ -94,16 +94,19 @@ ggplot(data = dfNoNaOccup, aes(fct_infreq(occupation))) +
 **In fact, the distribution of participants' occupation is very interesting, as there were proportionally almost as many students as there were clergymen/women (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).**
 
 # Challenges
-Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
+1. Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
 
-Inadequate staff: As stated, fewer registrants worked on the first day of the event. The were differences among the registrants in terms of their effectiveness and this was found to be statistically significant.
+2. Inadequate staff: As stated, fewer registrants worked on the first day of the event. The were differences among the registrants in terms of their effectiveness and this was found to be statistically significant.
+
+3. Discrepancy between the data collected on site and pre-event registrations.
 
 ```{r}
 df %>% 
-  ggplot(aes(fct_infreq(registrant), fill = ifelse(registrant == "Eventbrite", "Highlighted", "Normal"))) +
-  geom_bar() + 
+  count(registrant) %>% 
+  ggplot(aes(x = reorder(registrant, n), y = n, fill = ifelse(registrant == "Eventbrite", "Highlighted", "Normal"))) +
+  geom_bar(stat = "identity") + 
   coord_flip() +
-  ggtitle("Performance of Registrants") +
+  ggtitle("Work done by Registrants") +
   xlab("Name of Registrant") +
   theme(axis.title.y = element_text(face = "bold"),
         legend.position = "none")
@@ -121,3 +124,4 @@ From the foregoing, we would like to make the following suggestions to the organ
 1. Timely provision of field equipment, especially laptops, to enable the proper setup of the registration toolkit.
 2. Proper staffing by improving selection and training.
 3. Target students in the follow-up action of this edition as well as in future conferences.
+4. Collection of registration data before and during the event should follow the same format. 
