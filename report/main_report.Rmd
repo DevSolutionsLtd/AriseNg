@@ -3,9 +3,9 @@ title: "Report on Conference Registration for Arise Nigeria, 22-23 January 2019"
 author: "DevSolutions Ltd"
 date: "17 February 2019"
 output:
+  pdf_document: default
   word_document: default
   html_document: default
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,16 +20,15 @@ opts_chunk$set(echo = FALSE)
 ```
 
 # Introduction
-Nehemiah Apostolic Resource Centre (NARC) hosted a 2-Day conference tagged *Arise Nigeria* from 22-23 January 2019 at M & M Events Centre, Area 11 Garki, Abuja. DevSolutions was called upon to handle on-site conference registrations.
+Nehemiah Apostolic Resource Centre (NARC) hosted a two-day conference tagged *Arise Nigeria* from 22-23 January 2019 at M & M Events Centre, Area 11 Garki, Abuja. DevSolutions was called upon to handle on-site conference registrations.
 
-# Activity
+# The Activity
 ## Pre-conference
-NARC had already started pre-conference registration via an online service [Eventbrite](https://www.eventbrite.com) before our company was brought on board.
+NARC had already started pre-conference registration via an online service [Eventbrite](https://www.eventbrite.com) before our team was brought on board.
 
-A training session organised for registrants held in the premised of NARC in the evening of Monday 21 January, 2019. During the session, a customized electronic data entry format was introduced with practical demonstration on its usage. Out of 9 persons pencilled down as registrants, 6 attended the training session. Other relevant staff of the Centre were present.
+A training session organised for registrants held in the premises of NARC in the evening of Monday 21 January, 2019. During the session, a customized electronic data entry format was introduced with practical demonstration on its usage. Out of 9 persons pencilled down as registrants, 6 attended the training session, as well as other relevant staff of the Centre.
 
-Also visits were made to the conference venue to ensure that adequate arrangements were put in place for the team's assignment.
-
+Also, visits were made to the conference venue to ensure that adequate arrangements were put in place for the team's assignment.
 
 # Exploratory Data Analysis
 ```{r dependencies, message=FALSE}
@@ -43,19 +42,29 @@ dbDisconnect(cnx)
 ```
 
 ## Gender of Participants
-```{r plot gender}
-ggplot(data = subset(df, !is.na(gender)), aes(gender)) +
-  geom_bar(fill = "darkgreen") +
-  ggtitle('Gender of participants')
+```{r gender prep}
+dat <- subset(df, !is.na(df$gender))
+numGender <- length(dat$gender)
 ```
 
-```{r}
-genderChiStat <- chisq.test(table(df$gender))
+The gender of the participants was analysed - however, the pre-registration site had not provided a field for capturing participants' sex -- only `r numGender` had their sex accurately captured.
+
+```{r plot gender}
+dat %>% 
+ggplot(aes(gender)) +
+  geom_bar(fill = "darkgreen") +
+  ggtitle("Distribution of participants' gender", 
+          sub = paste("N =", numGender))
 ```
-The gender difference of participants is `r ifelse(genderChiStat$p.value < .001, "", "not")` statistically significant.
+
+```{r chisq gender}
+alpha <- 0.001
+```
+The gender difference of participants is `r ifelse(chisq.test(table(df$gender))$p.value < alpha, "", "not")` statistically significant (p < `r alpha`).
 
 ## Location of Participants
-Interestingly, the majority of participants who came from outside Abuja were from neighbouring Suleja (`r round(sum(df$location == "SULEJA", na.rm = TRUE) / length(df$location) * 100, digits = 2)`% of participants).
+The number of attendees from nearby locations such as neighbouring Suleja was highest (`r round(sum(df$location == "SULEJA", na.rm = TRUE) / length(df$location) * 100, digits = 2)`% of participants). 
+
 ```{r plot location}
 df %>%
   subset(!is.na(location) & location != 'ABUJA') %>% 
@@ -69,17 +78,18 @@ df %>%
   theme(legend.position = 'none')
 ```
 
+Visitors also came from places like Jos, Kafanchan, and even Lagos. There also a few participants who came from overseas.
 
 ```{r}
 df$location %>% 
   table(dnn = "Location") %>% 
   sort(decreasing = TRUE) %>% 
   head(10L) %>% 
-  kable(caption = "Top Ten Location of Participants")
+  kable(caption = "Top Ten Locations of Participants")
 ```
 
 ## Occupation of Participants
-Expectedly the majority of participants were of the clergy. However, the distribution of participants indicate that a large proportion of them were students, followed by entrepreneurs, civil/public servants and artisans - in that order. 
+The majority of participants were of the clergy. However, the distribution of participants indicate that a large proportion of them were students, followed by entrepreneurs, civil/public servants and artisans - in that order. 
 ```{r plot occupation}
 dfNoNaOccup <- subset(df, !is.na(occupation))
 ggplot(data = dfNoNaOccup, aes(fct_infreq(occupation))) +
@@ -91,7 +101,7 @@ ggplot(data = dfNoNaOccup, aes(fct_infreq(occupation))) +
         axis.title.y = element_text(face = "bold"))
 ```
 
-**In fact, the distribution of participants' occupation is very interesting, as there were proportionally almost as many students as there were clergymen/women (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).**
+In fact, the distribution of participants' occupation is very interesting, as there were **proportionally almost as many students as there were clergymen/women** (`r round(sum(dfNoNaOccup$occupation == 'STUDENT') / length(dfNoNaOccup$occupation), 2) * 100`% students to `r round(sum(dfNoNaOccup$occupation == "CLERGY") / length(dfNoNaOccup$occupation) %>% round(2), 2) * 100`% clergy).
 
 # Challenges
 1. Late arrival of laptops and non-availability of internet made it difficult for the already prepared data management package to be installed on the computers. At the end of the day, the team had to resort to entering the data onto spreadsheets.
