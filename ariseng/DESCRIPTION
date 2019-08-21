@@ -1,13 +1,13 @@
 Package: ariseng
 Type: Package
 Title: Registrations for Arise Nigeria Conference, Abuja, Nigeria
-Version: 0.0.3.9001
+Version: 0.1.0
 Author: c(person('Victor', 'Ordu', email = 'victor@dev-solu.com',
                role = c('aut', 'cre')),
           person('DevSolutions Ltd', role = 'cph'))
 Maintainer: Victor Ordu <victor@dev-solu.com>
 Description: Provides an interface for the collection of registration data 
-    for the Arise Nigeria Conference, Abuja, Nigeria 22-23 January, 2019.
+    for the Arise Nigeria Conferences, Abuja.
 License: file LICENSE
 SystemRequirements: GTK+ (>= 2.8.0)
 Depends: R (>= 3.5)
