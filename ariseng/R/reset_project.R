@@ -10,5 +10,5 @@ reset_project <- function(proj)
   env <- new.env()
   load(proj, envir = env)
   env$Data <- env$Data[0, ]
-  save(list = ls(envir = env), file = proj)
+  save(list = ls(envir = env), envir = env, file = proj)
 }
