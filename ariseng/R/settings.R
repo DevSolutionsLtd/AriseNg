@@ -1,6 +1,8 @@
 #' Fetch the project template/data
 #'
 #' Enables the user to use the predefined variables for this project
+#' 
+#' @importFrom utils menu
 #'
 #' @param path The path to a directory where the settings are to be
 #' saved.
