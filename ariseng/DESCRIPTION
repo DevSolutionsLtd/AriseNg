@@ -1,7 +1,7 @@
 Package: ariseng
 Type: Package
 Title: Registrations for Arise Nigeria Conference, Abuja, Nigeria
-Version: 0.1.0
+Version: 0.1.1
 Author: c(person('Victor', 'Ordu', email = 'victor@dev-solu.com',
                role = c('aut', 'cre')),
           person('DevSolutions Ltd', role = 'cph'))
